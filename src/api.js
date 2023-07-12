@@ -45,10 +45,17 @@ export class JoblyApi {
                   }
 
     let res = await this.request(`auth/token`, data, "POST");
-    this.token = res.token;
-    localStorage.setItem('user', this.token);
-    localStorage.setItem('username', username);
-    return this.token;
+    JoblyApi.token = res.token;
+    //get user info    
+    let userRes = await this.request(`users/${username}`);
+    const user = {
+      token : JoblyApi.token,
+      ...userRes.user
+    }
+    localStorage.setItem('user', JSON.stringify(user));
+    // localStorage.setItem('username', username);
+    console.log("user: ", user);
+    return user;
   }
 
 
@@ -61,6 +68,17 @@ export class JoblyApi {
   static async getJob(handle) {
     let res = await this.request(`jobs/${handle}`);
     return res;
+  }
+
+  static async updateProfile(username, data){
+    const requestData = JSON.stringify(data);
+    console.log("Stringified data: ", requestData);
+    console.log("username: ", username);
+    console.log("api token: ", this.token);
+    let res = await this.request(`users/${username}`, data, "patch");
+    console.log("Updated: ", res);
+    const user = {...res.user, token : JoblyApi.token};
+    return user;
   }
 
   static async register(username, password, first, last, email){
@@ -87,10 +105,19 @@ export class JoblyApi {
       let message = err.response.data.error.message;
       throw Array.isArray(message) ? message : [message];
     }
-    this.token = res.token;
-    localStorage.setItem('user', this.token);
-    localStorage.setItem('username', username);
-    return this.token;
+    console.log("new user: ", res);
+    console.log("data: ", res);
+    // JoblyApi.token = res.token;
+
+    //get user info    
+    
+    // const user = {
+    //   token : res.token,
+    //   ...res.user
+    // }
+
+    // localStorage.setItem('user', JSON.stringify(user));
+    // return user;
   }
 
   // obviously, you'll add a lot here ...

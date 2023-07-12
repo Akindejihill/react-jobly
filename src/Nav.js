@@ -8,7 +8,6 @@ export default function Nav({user, setUser}){
     const [nav, setNav] = useState("");
 
     function logout(){
-        localStorage.removeItem("username");
         localStorage.removeItem("user");
         setUser(null);
         navigate("/");

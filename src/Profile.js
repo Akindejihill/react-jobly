@@ -1,13 +1,21 @@
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import {useNavigate} from 'react-router-dom';
 
 export default function Profile({doProfile, user}){
     const navigate = useNavigate();
-    
-    const [first, setFirst] = useState(user.first);
-    const [last, setLast] = useState(user.last);
-    const [email, setEmail] = useState(user.email);
-    const [username, setUsername] = useState(user.username);
+
+    const [username, setUsername] = useState("");
+    const [first, setFirst] = useState("");
+    const [last, setLast] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+
+    useEffect(() => {
+        setFirst(user.firstName);
+        setLast(user.lastName);
+        setEmail(user.email);
+        setUsername(user.username);
+    }, []);
 
     function fieldControl(evt){
         const field = evt.target.name;
@@ -15,7 +23,7 @@ export default function Profile({doProfile, user}){
 
         //set the commands for the appropriate controlled field
         const update4 = {
-            username : setUsername,
+            password : setPassword,
             first : setFirst,
             last : setLast,
             email : setEmail
@@ -25,18 +33,24 @@ export default function Profile({doProfile, user}){
 
     }
 
-    function handleSubmit(){
-        doProfile(username, first, last, email);
+    function handleSubmit(evt){
+        evt.preventDefault();
+        const data = {};
+        if (password) data.password = password;
+        if (first) data.firstName = first;
+        if (last) data.lastName = last;
+        if (email) data.email = email;
+        doProfile(user.username, data);
         navigate("/");
     }
 
     return (
         <div>
-            <h1>Sign up:</h1>
+            <h1>Profile: {username}</h1>
             <form onSubmit={handleSubmit}> 
-                <p><label htmlFor="username">Username</label><br/>
-                <input type="text" id="username" name="username" placeholder='username' onChange={fieldControl} value={username} /></p>
-                <p><label htmlFor="first">First</label><br/>
+                <p><label htmlFor="password">Password</label><br/>
+                <input type="password" id="password" name="password" placeholder='password' onChange={fieldControl} value={password} /></p>
+                <p><label htmlFor="first">First name</label><br/>
                 <input type="text" id="first" name="first" placeholder="first" onChange={fieldControl} value={first}/></p>
                 <p><label htmlFor="last">Last name</label><br/>
                 <input type="text" id="last" name="last" placeholder="last" onChange={fieldControl} value={last}/></p>
