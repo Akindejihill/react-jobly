@@ -1,5 +1,6 @@
 import {Link, useNavigate} from 'react-router-dom';
 import {useState, useEffect} from 'react';
+import './styles/Nav.css';
 
 export default function Nav({user, setUser}){
 
@@ -9,16 +10,16 @@ export default function Nav({user, setUser}){
 
     function logout(){
         localStorage.removeItem("user");
-        setUser(null);
+        setUser({});
         navigate("/");
       }
     
 
     useEffect(() => {
-        if (user) {
+        if (Object.keys(user).length !== 0) { //we are logged in if the user object is not empty
             console.log("user is: ", user);
           setNav(
-            <nav>
+            <nav id="navbar">
               <span className="leftjustify">
                 <Link to="/">Jobly</Link>
               </span>
@@ -34,7 +35,7 @@ export default function Nav({user, setUser}){
           );
         } else {
             setNav(
-                <nav>
+                <nav id="navbar">
                   <span className="leftjustify">
                     <Link to="/">Jobly</Link>
                   </span>

@@ -64,11 +64,17 @@ export class JoblyApi {
     return res;
   }
 
+  static async findCompany(handle) {
+    let res = await this.request(`companies?name=${handle}`);
+    return res;
+  }
+
 
   static async getJob(handle) {
     let res = await this.request(`jobs/${handle}`);
     return res;
   }
+
 
   static async updateProfile(username, data){
     const requestData = JSON.stringify(data);
@@ -79,6 +85,13 @@ export class JoblyApi {
     console.log("Updated: ", res);
     const user = {...res.user, token : JoblyApi.token};
     return user;
+  }
+
+
+  static async apply(jobID, userID){
+    const data = {};
+    let res = await this.request(`users/${userID}/jobs/${jobID}`, data, "post");
+    return res;
   }
 
   static async register(username, password, first, last, email){
@@ -92,33 +105,30 @@ export class JoblyApi {
     }
 
     const url = `${BASE_URL}/users`;
-    const headers = { authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3RhZG1pbiIsImlzQWRtaW4iOnRydWUsImlhdCI6MTY4MTUyODUzMH0.b1V3SMyHQLr9_TXC9v-Zqn3iIeyJjEyReaaTBC8QHNg" };
+    const headers = { authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3RhZG1pbiIsImlzQWRtaW4iOnRydWUsImlhdCI6MTY4OTE3Njg3NH0.VzndLMqer4VeE9iYXvgALhYDWDWlzEfqL3JRczvvjQE" };
     const params = {};
     const method = "POST";
 
     let res = "";
 
     try {
-      res = await axios({ url, method, data, params, headers }).data;
+      res = await axios({ url, method, data, params, headers });
     } catch (err) {
       console.error("API Error:", err.response);
       let message = err.response.data.error.message;
       throw Array.isArray(message) ? message : [message];
     }
-    console.log("new user: ", res);
-    console.log("data: ", res);
-    // JoblyApi.token = res.token;
+    console.log("new user: ", res.data);
 
-    //get user info    
-    
-    // const user = {
-    //   token : res.token,
-    //   ...res.user
-    // }
-
-    // localStorage.setItem('user', JSON.stringify(user));
-    // return user;
+    const user = {
+      token : res.data.token,
+      ...res.data.user
+    }
+    localStorage.setItem('user', JSON.stringify(user));
+    return user;
   }
+
+
 
   // obviously, you'll add a lot here ...
 }

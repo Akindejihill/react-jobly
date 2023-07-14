@@ -1,0 +1,14 @@
+.joblisting{
+    padding: 10px;
+    background-color : white;
+    color : rgb(45, 0, 45);
+    width : 600px;
+    margin : 10px auto;
+}
+
+.joblisting > button{
+    background-color: red;
+    border-radius : 10%;
+    font-size : 120%;
+    color : white;
+}

@@ -3,17 +3,23 @@ import { useEffect, useState } from 'react';
 import { JoblyApi } from './api';
 import Listing from './Listing';
 
-export default function Jobs(){
+/**
+ * Displays a list of all available positions at all companies
+ * @param {*} apply 
+ * @param {*} applications 
+ * @returns 
+ */
+export default function Jobs({apply, applications}){
 
     const [jobs, setJobs] = useState([]);
+
 
 
     useEffect(() => {
         async function callApi(){
             const data = await JoblyApi.getJob("");
-            console.log("data: ", data);
+            console.log("job data: ", data);
             if (data.jobs){
-                console.log("IS an array!");
                 setJobs(data.jobs);
             } 
         }
@@ -26,7 +32,7 @@ export default function Jobs(){
     return (
         <div style={{backgroundColor : "black", color : "white", textAlign : "left"}}>
             <h1>Job Listings</h1>
-            {jobs.map((job) => <Listing job={job} key={job.id}/>)}
+            {jobs.map((job) => <Listing job={job} apply={apply} applications={applications} key={job.id}/>)}
         </div>
     )
 

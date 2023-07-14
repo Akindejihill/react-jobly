@@ -1,5 +1,5 @@
 import { Routes, Route, BrowserRouter } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import Home from "./Home";
 import Login from "./Login";
@@ -9,7 +9,8 @@ import Nav from "./Nav";
 import Companies from "./Companies";
 import JobListings from "./JobListings";
 import Jobs from "./Jobs";
-import "./App.css";
+import ProtectedRoute from "./ProtectedRoute";
+import "./styles/App.css";
 
 // const { JoblyApi } = require("./api");
 import { JoblyApi } from "./api";
@@ -17,22 +18,23 @@ import { JoblyApi } from "./api";
 function App() {
     //login method from api helper
     async function login(username, password) {
-        const user = await JoblyApi.login(username, password);
-        console.log("user: ", user);
-        setUser(user);
+        const loginUser = await JoblyApi.login(username, password);
+        console.log("login user: ", loginUser);
+        setUser(loginUser);
     }
 
     async function register(username, password, first, last, email) {
-        const user = await JoblyApi.register(
+        const newUser = await JoblyApi.register(
             username,
             password,
             first,
             last,
             email
         );
-        console.log("user: ", user);
-        setUser(user);
+        console.log("user: ", newUser);
+        setUser(newUser);
     }
+
 
     async function updateProfile(username, data) {
         console.log("Data from form: ", data);
@@ -40,15 +42,31 @@ function App() {
         setUser(newProfile);
     }
 
-    const [user, setUser] = useState(null);
 
-    useEffect(() => {
+    /**
+     * Apply to job and update users applications list
+     * @param {*} jobID 
+     */
+        async function apply(jobID){
+            const response = await JoblyApi.apply(jobID, user.username);
+            if (response.applied){
+                setApplications(applications => [...applications, response.applied]);
+            }
+        }
+
+
+    const [user, setUser] = useState(() => {
         const userJSON = localStorage.getItem("user");
-        console.log("userJSON: ", userJSON);
-        const user = userJSON ? JSON.parse(userJSON) : null;
+        return userJSON ? JSON.parse(userJSON) : {};
+    });
 
-        setUser(user);
-    }, []);
+    const [applications, setApplications] = useState(() => {
+        const userJSON = localStorage.getItem("user");
+        const user = userJSON ? JSON.parse(userJSON) : {};
+        // console.log("Applications: ", user.applications);
+        return user.applications;
+    });
+
 
     return (
         <div className="App">
@@ -74,12 +92,23 @@ function App() {
                                 />
                             }
                         />
-                        <Route path="/companies" element={<Companies />} />
-                        <Route
-                            path="/companies/:handle"
-                            element={<JobListings />}
+
+                         <Route path="/companies" element={
+                            <ProtectedRoute user={user}>
+                                <Companies />
+                            </ProtectedRoute>
+                         } />
+                        <Route path="/companies/:handle" element={
+                            <ProtectedRoute user={user}>
+                                <JobListings apply={apply} applications={applications}/>
+                            </ProtectedRoute>}
                         />
-                        <Route path="/jobs" element={<Jobs />} />
+                        <Route path="/jobs" element={
+                            <ProtectedRoute user={user}>
+                                <Jobs apply={apply} applications={applications}/>
+                            </ProtectedRoute>
+                        } />
+
                     </Routes>
                 </main>
             </BrowserRouter>
